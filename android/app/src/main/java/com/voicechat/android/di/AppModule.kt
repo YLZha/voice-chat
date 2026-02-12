@@ -31,8 +31,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
-    private const val BASE_URL = "https://voice.morningwoodstudio.com/"
-    private const val WS_BASE_URL = "wss://voice.morningwoodstudio.com/ws/voice-chat"
+    private const val BASE_URL = "http://192.168.1.84:9000/"
+    private const val WS_BASE_URL = "ws://192.168.1.84:9000/ws/voice-chat"
 
     @Provides
     @Singleton
