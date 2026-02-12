@@ -50,7 +50,7 @@ def test_google_login_invalid():
     try:
         response = requests.post(
             f"{BASE_URL}/auth/google",
-            json={"google_id_token": "invalid_token_12345"},
+            json={"id_token": "invalid_token_12345"},
             timeout=TIMEOUT
         )
         # Invalid token should return 401
@@ -73,7 +73,7 @@ def test_google_login_not_in_allowlist():
     try:
         response = requests.post(
             f"{BASE_URL}/auth/google",
-            json={"google_id_token": "fake_but_valid_looking_token"},
+            json={"id_token": "fake_but_valid_looking_token"},
             timeout=TIMEOUT
         )
         # Should return 401 (invalid token) or 403 (not in allowlist)

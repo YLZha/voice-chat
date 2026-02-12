@@ -4,7 +4,7 @@ from typing import Optional
 
 class GoogleLoginRequest(BaseModel):
     """Request body for POST /auth/google"""
-    google_id_token: str
+    id_token: str
 
 
 class AuthResponse(BaseModel):
@@ -23,6 +23,14 @@ class RefreshRequest(BaseModel):
 class WebSocketAuthMessage(BaseModel):
     """Auth message sent on WebSocket connection"""
     token: str
+
+
+class UserResponse(BaseModel):
+    """Response from GET /auth/me"""
+    id: str
+    email: str
+    name: str
+    picture: Optional[str] = None
 
 
 class ErrorResponse(BaseModel):

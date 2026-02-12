@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, WebSocket, status, WebSocketDisconnect
+from fastapi import FastAPI, Header, HTTPException, WebSocket, status, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import asyncio
 import base64
@@ -15,6 +15,7 @@ from app.models import (
     GoogleLoginRequest,
     AuthResponse,
     RefreshRequest,
+    UserResponse,
     WebSocketAuthMessage,
 )
 from app.auth import token_manager, google_auth_manager
@@ -59,7 +60,7 @@ async def google_login(body: GoogleLoginRequest):
     """
     Google OAuth login endpoint.
     
-    Request: {google_id_token: "..."}
+    Request: {id_token: "..."}
     
     1. Verify Google token
     2. Extract email
@@ -69,10 +70,11 @@ async def google_login(body: GoogleLoginRequest):
     Returns: {access_token, refresh_token, expires_in}
     """
     try:
-        # Verify Google token and get email
-        email = google_auth_manager.verify_google_token(body.google_id_token)
+        # Verify Google token and get user info
+        user_info = google_auth_manager.verify_google_token(body.id_token)
+        email = user_info["email"]
         logger.info(f"Google token verified for email: {email}")
-        
+
         # Check allowlist
         if not google_auth_manager.check_allowlist(email):
             logger.warning(f"Email not in allowlist: {email}")
@@ -80,11 +82,13 @@ async def google_login(body: GoogleLoginRequest):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Email not authorized"
             )
-        
+
         logger.info(f"Email in allowlist: {email}")
-        
+
         # Generate tokens
-        access_token = token_manager.create_access_token(email)
+        access_token = token_manager.create_access_token(
+            email, name=user_info.get("name", ""), picture=user_info.get("picture")
+        )
         refresh_token = token_manager.create_refresh_token(email)
         
         logger.info(f"Tokens generated for: {email}")
@@ -138,6 +142,49 @@ async def refresh_access_token(body: RefreshRequest):
         raise
     except Exception as e:
         logger.error(f"Error in refresh_access_token: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+
+@app.get("/auth/me", response_model=UserResponse)
+async def get_current_user(authorization: str = Header(...)):
+    """
+    Get current user info from JWT token.
+
+    Requires Authorization header: "Bearer <access_token>"
+    """
+    try:
+        # Extract token from "Bearer <token>"
+        if not authorization.startswith("Bearer "):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authorization header"
+            )
+        token = authorization[7:]
+
+        # Verify and decode JWT
+        import jwt as pyjwt
+        claims = pyjwt.decode(token, config.jwt_secret, algorithms=["HS256"])
+        if claims.get("type") != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type"
+            )
+
+        email = claims.get("sub", "")
+        return UserResponse(
+            id=email,
+            email=email,
+            name=claims.get("name", ""),
+            picture=claims.get("picture")
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in get_current_user: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Internal server error"
