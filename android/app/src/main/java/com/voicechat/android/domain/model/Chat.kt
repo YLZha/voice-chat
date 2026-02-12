@@ -23,5 +23,5 @@ sealed class PlaybackState {
     data object Idle : PlaybackState()
     data object Playing : PlaybackState()
     data object Paused : PlaybackState()
-    data class Error(val message: String) : RecordingState()
+    data class Error(val message: String) : PlaybackState()
 }

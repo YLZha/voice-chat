@@ -60,7 +60,7 @@ class AudioPlayer @Inject constructor() {
             audioTrack = createAudioTrack()
             
             if (audioTrack?.state != AudioTrack.STATE_INITIALIZED) {
-                _playbackState.value = PlaybackState.Error(message = "Failed to initialize AudioTrack")
+                _playbackState.value = PlaybackState.Error("Failed to initialize AudioTrack")
                 return@withContext Result.failure(Exception("AudioTrack initialization failed"))
             }
 
@@ -81,7 +81,7 @@ class AudioPlayer @Inject constructor() {
                 if (written > 0) {
                     offset += written
                 } else if (written < 0) {
-                    _playbackState.value = PlaybackState.Error(message = "Playback error: $written")
+                    _playbackState.value = PlaybackState.Error("Playback error: $written")
                     break
                 }
                 
@@ -97,7 +97,7 @@ class AudioPlayer @Inject constructor() {
             stopPlayback()
             Result.success(Unit)
         } catch (e: Exception) {
-            _playbackState.value = PlaybackState.Error(message = e.message ?: "Playback failed")
+            _playbackState.value = PlaybackState.Error(e.message ?: "Playback failed")
             stopPlayback()
             Result.failure(e)
         }
@@ -116,7 +116,7 @@ class AudioPlayer @Inject constructor() {
             _playbackState.value = PlaybackState.Idle
             Result.success(Unit)
         } catch (e: Exception) {
-            _playbackState.value = PlaybackState.Error(message = e.message ?: "Failed to stop playback")
+            _playbackState.value = PlaybackState.Error(e.message ?: "Failed to stop playback")
             Result.failure(e)
         }
     }

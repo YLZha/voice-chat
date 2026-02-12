@@ -31,11 +31,15 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private var authViewModelRef: AuthViewModel? = null
+
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        handleSignInResult(task)
+        authViewModelRef?.let { viewModel ->
+            handleSignInResult(task, viewModel)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
                     val authViewModel: AuthViewModel = hiltViewModel()
+                    authViewModelRef = authViewModel
                     val authState by authViewModel.authState.collectAsState()
 
                     // Check if already signed in
@@ -103,12 +108,11 @@ class MainActivity : ComponentActivity() {
         googleSignInLauncher.launch(signInIntent)
     }
 
-    private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
+    private fun handleSignInResult(task: Task<GoogleSignInAccount>, viewModel: AuthViewModel) {
         try {
             val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
             account.idToken?.let { idToken ->
-                val authViewModel: AuthViewModel = hiltViewModel()
-                authViewModel.signInWithGoogle(idToken)
+                viewModel.signInWithGoogle(idToken)
             }
         } catch (e: com.google.android.gms.common.api.ApiException) {
             val statusCode = e.statusCode
