@@ -110,7 +110,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.Transcription -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.id && msg.isLoading) {
+                        if (msg.id == message.messageId && msg.isLoading) {
                             msg.copy(content = message.text, isLoading = false)
                         } else {
                             msg
@@ -122,7 +122,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.TtsResponse -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.id) {
+                        if (msg.id == message.messageId) {
                             msg.copy(audioUrl = message.audio)
                         } else {
                             msg
@@ -199,9 +199,9 @@ class ChatRepositoryImpl @Inject constructor(
         
         // Add user message placeholder
         val message = ChatMessage(
+            id = messageId,
             content = "Voice message",
             isUser = true,
-            messageId = messageId,
             isLoading = true
         )
         _messages.update { it + message }
@@ -209,9 +209,9 @@ class ChatRepositoryImpl @Inject constructor(
         // Add assistant placeholder
         _messages.update { messages ->
             messages + ChatMessage(
+                id = messageId,
                 content = "",
                 isUser = false,
-                messageId = messageId,
                 isLoading = true
             )
         }

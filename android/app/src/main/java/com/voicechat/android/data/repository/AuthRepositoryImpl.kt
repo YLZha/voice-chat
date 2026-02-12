@@ -114,10 +114,6 @@ class AuthRepositoryImpl @Inject constructor(
         return googleSignInClient.signInIntent
     }
 
-    fun signOut(): Task<Void> {
-        return googleSignInClient.signOut()
-    }
-
     fun requiresAuthScope(account: GoogleSignInAccount): Boolean {
         return !GoogleSignIn.hasPermissions(account, *AUTH_SCOPES)
     }
