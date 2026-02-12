@@ -1,0 +1,29 @@
+auth:
+  google_client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+  jwt_secret: "REDACTED_JWT_PLACEHOLDER"
+  access_token_expire_hours: 1
+  refresh_token_expire_days: 30
+  allowlist:
+    - frank@example.com
+    - user@example.com
+
+tts:
+  provider: "elevenlabs"  # Options: "elevenlabs" or "espeak"
+  api_key: "your-elevenlabs-api-key"
+  voice_id: "EXAVITQu4vr4xnSDxMaL"  # English female voice
+
+claude:
+  api_key: "your-claude-api-key"
+  model: "claude-opus-4-5"
+
+whisper:
+  model_name: "facebook/wav2vec2-base"
+
+tts_coqui:
+  model_name: "tts_models/en/ljspeech/glow-tts"
+  sample_rate: 22050
+
+server:
+  host: "0.0.0.0"
+  port: 9000
+  debug: true
