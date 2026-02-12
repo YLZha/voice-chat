@@ -4,8 +4,7 @@ auth:
   access_token_expire_hours: 1
   refresh_token_expire_days: 30
   allowlist:
-    - frank@example.com
-    - user@example.com
+    - REDACTED_EMAIL
 
 tts:
   provider: "elevenlabs"  # Options: "elevenlabs" or "espeak"
