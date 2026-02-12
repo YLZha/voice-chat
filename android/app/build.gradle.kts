@@ -92,11 +92,8 @@ dependencies {
     // Google Sign-In
     implementation("com.google.android.gms:play-services-auth:20.7.0")
 
-    // WebSocket - Scarlet
-    implementation("com.github.tinder.scarlet:scarlet:0.1.14")
-    implementation("com.github.tinder.scarlet:scarlet-okhttp:0.1.14")
-    implementation("com.github.tinder.scarlet:scarlet-message-stream-okhttp:0.1.14")
-    implementation("com.github.tinder.scarlet:scarlet-lifecycle-android:0.1.14")
+    // WebSocket - Using OkHttp's built-in WebSocket support
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 
     // Retrofit & OkHttp
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
