@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder
 import com.voicechat.android.BuildConfig
 import com.voicechat.android.data.local.TokenManager
 import com.voicechat.android.data.remote.AuthApiService
+import com.voicechat.android.data.remote.ws.WsService
 import com.voicechat.android.data.repository.AuthRepositoryImpl
 import com.voicechat.android.data.repository.ChatRepositoryImpl
 import com.voicechat.android.domain.repository.AuthRepository
@@ -95,6 +96,12 @@ object AppModule {
         @ApplicationContext context: Context
     ): TokenManager {
         return TokenManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWsService(okHttpClient: OkHttpClient, gson: Gson): WsService {
+        return WsService(okHttpClient, gson)
     }
 }
 

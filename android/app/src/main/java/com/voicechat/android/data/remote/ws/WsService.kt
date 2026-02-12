@@ -1,15 +1,17 @@
 package com.voicechat.android.data.remote.ws
 
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
-import java.util.concurrent.TimeUnit
 
-class WsService(private val okHttpClient: OkHttpClient) {
+class WsService(
+    private val okHttpClient: OkHttpClient,
+    private val gson: Gson
+) {
     
     private var webSocket: WebSocket? = null
     private val messageFlow = MutableSharedFlow<String>(replay = 10)
@@ -24,6 +26,10 @@ class WsService(private val okHttpClient: OkHttpClient) {
                 
                 override fun onMessage(webSocket: WebSocket, text: String) {
                     messageFlow.tryEmit(text)
+                }
+                
+                override fun onMessage(webSocket: WebSocket, bytes: okio.ByteString) {
+                    messageFlow.tryEmit(bytes.utf8())
                 }
                 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Response?) {
@@ -45,7 +51,7 @@ class WsService(private val okHttpClient: OkHttpClient) {
     
     fun sendMessage(message: WsMessage) {
         try {
-            val json = Json.encodeToString(WsMessage.serializer(), message)
+            val json = gson.toJson(message)
             webSocket?.send(json)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -53,7 +59,17 @@ class WsService(private val okHttpClient: OkHttpClient) {
     }
     
     fun sendBytes(bytes: ByteArray) {
-        webSocket?.send(okhttp3.internal.http2.Http2Stream.FrameHolder(bytes).byteString().utf8())
+        try {
+            val base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP)
+            val audioMessage = mapOf(
+                "type" to "audio",
+                "data" to base64
+            )
+            val json = gson.toJson(audioMessage)
+            webSocket?.send(json)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     
     fun observeMessages(): Flow<String> = messageFlow
