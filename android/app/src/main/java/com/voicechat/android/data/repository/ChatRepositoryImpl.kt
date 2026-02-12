@@ -110,7 +110,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.Transcription -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.id && msg.isLoading) {
+                        if (msg.messageId == message.id && msg.isLoading) {
                             msg.copy(content = message.text, isLoading = false)
                         } else {
                             msg
@@ -122,7 +122,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.TtsResponse -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.id) {
+                        if (msg.messageId == message.id) {
                             msg.copy(audioUrl = message.audio)
                         } else {
                             msg
@@ -166,7 +166,7 @@ class ChatRepositoryImpl @Inject constructor(
         try {
             val wsMessage = WsMessage.TextMessage(
                 content = text,
-                messageId = message.id
+                messageId = message.messageId
             )
             wsService.sendMessage(wsMessage)
             
@@ -175,14 +175,14 @@ class ChatRepositoryImpl @Inject constructor(
                 messages + ChatMessage(
                     content = "",
                     isUser = false,
-                    messageId = message.id,
+                    messageId = message.messageId,
                     isLoading = true
                 )
             }
         } catch (e: Exception) {
             _messages.update { messages ->
                 messages.map { msg ->
-                    if (msg.id == message.id) msg.copy(isError = true, isLoading = false)
+                    if (msg.messageId == message.messageId) msg.copy(isError = true, isLoading = false)
                     else msg
                 }
             }
@@ -226,7 +226,7 @@ class ChatRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             _messages.update { messages ->
                 messages.map { msg ->
-                    if (msg.id == messageId) msg.copy(isError = true, isLoading = false)
+                    if (msg.messageId == messageId) msg.copy(isError = true, isLoading = false)
                     else msg
                 }
             }

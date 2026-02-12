@@ -57,8 +57,7 @@ class MainActivity : ComponentActivity() {
                         if (account != null && account.idToken != null) {
                             authViewModel.signInWithGoogle(account.idToken!!)
                         } else if (authState is AuthState.Unauthenticated) {
-                            // Launch sign-in flow
-                            launchGoogleSignInComposable()
+                            // Sign-in UI will be shown by VoiceChatNavigation
                         }
                     }
 
@@ -80,11 +79,6 @@ class MainActivity : ComponentActivity() {
                             }
                             else -> {}
                         }
-                    }
-
-                    @Composable
-                    private fun launchGoogleSignInComposable() {
-                        launchGoogleSignIn()
                     }
 
                     VoiceChatNavigation(

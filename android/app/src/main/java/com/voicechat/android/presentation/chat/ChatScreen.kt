@@ -1,8 +1,9 @@
 package com.voicechat.android.presentation.chat
 
 import android.Manifest
-import androidx.compose.foundation.Shape
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

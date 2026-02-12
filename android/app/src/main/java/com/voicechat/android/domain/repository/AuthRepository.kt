@@ -2,10 +2,10 @@ package com.voicechat.android.domain.repository
 
 import com.voicechat.android.domain.model.AuthState
 import com.voicechat.android.domain.model.User
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
-    val authState: Flow<AuthState>
+    val authState: StateFlow<AuthState>
     val currentUser: User?
     
     suspend fun signInWithGoogle(idToken: String): Result<User>

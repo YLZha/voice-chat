@@ -1,5 +1,6 @@
 package com.voicechat.android.data.repository
 
+import android.content.Intent
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -12,8 +13,8 @@ import com.voicechat.android.data.remote.dto.RefreshTokenRequest
 import com.voicechat.android.domain.model.AuthState
 import com.voicechat.android.domain.model.User
 import com.voicechat.android.domain.repository.AuthRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -27,7 +28,7 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unauthenticated)
-    override val authState: Flow<AuthState> = _authState.asStateFlow()
+    override val authState: StateFlow<AuthState> = _authState.asStateFlow()
 
     private var cachedUser: User? = null
 
@@ -109,11 +110,11 @@ class AuthRepositoryImpl @Inject constructor(
         return tokenManager.getAccessToken() != null && !tokenManager.isTokenExpired()
     }
 
-    fun getSignInIntent(): Task<GoogleSignInAccount> {
+    fun getSignInIntent(): Intent {
         return googleSignInClient.signInIntent
     }
 
-    fun getSignOutIntent(): Task<Void> {
+    fun signOut(): Task<Void> {
         return googleSignInClient.signOut()
     }
 
