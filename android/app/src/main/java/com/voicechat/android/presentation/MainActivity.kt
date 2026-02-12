@@ -1,6 +1,5 @@
 package com.voicechat.android.presentation
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,16 +7,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.tasks.Task
+import com.voicechat.android.R
 import com.voicechat.android.domain.model.AuthState
 import com.voicechat.android.presentation.auth.AuthViewModel
 import com.voicechat.android.presentation.navigation.Screen
@@ -55,7 +58,7 @@ class MainActivity : ComponentActivity() {
                             authViewModel.signInWithGoogle(account.idToken!!)
                         } else if (authState is AuthState.Unauthenticated) {
                             // Launch sign-in flow
-                            launchGoogleSignIn()
+                            launchGoogleSignInComposable()
                         }
                     }
 
@@ -79,6 +82,11 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    @Composable
+                    private fun launchGoogleSignInComposable() {
+                        launchGoogleSignIn()
+                    }
+
                     VoiceChatNavigation(
                         navController = navController,
                         startDestination = Screen.Auth.route
@@ -91,9 +99,7 @@ class MainActivity : ComponentActivity() {
     private fun launchGoogleSignIn() {
         val signInIntent = GoogleSignIn.getClient(
             this,
-            com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
-                com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
-            )
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.web_client_id))
                 .requestEmail()
                 .requestProfile()

@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.pow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -109,7 +110,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.Transcription -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.messageId && msg.isLoading) {
+                        if (msg.id == message.id && msg.isLoading) {
                             msg.copy(content = message.text, isLoading = false)
                         } else {
                             msg
@@ -121,7 +122,7 @@ class ChatRepositoryImpl @Inject constructor(
             is WsMessage.TtsResponse -> {
                 _messages.update { currentMessages ->
                     currentMessages.map { msg ->
-                        if (msg.id == message.messageId) {
+                        if (msg.id == message.id) {
                             msg.copy(audioUrl = message.audio)
                         } else {
                             msg
@@ -242,7 +243,7 @@ class ChatRepositoryImpl @Inject constructor(
         if (reconnectAttempts < maxReconnectAttempts) {
             reconnectAttempts++
             val delay = baseReconnectDelay * (2.0.pow(reconnectAttempts - 1)).toLong()
-                .coerceAtMax(30000L) // Max 30 seconds
+                .coerceAtMost(30000L) // Max 30 seconds
             
             _connectionState.value = ConnectionState.Reconnecting(reconnectAttempts)
             delay(delay)
@@ -267,11 +268,5 @@ class ChatRepositoryImpl @Inject constructor(
         // should be in AuthRepository. For now, we'll throw an exception
         // that will be caught and handled by the auth layer
         return Result.failure(Exception("Token refresh not implemented in ChatRepository"))
-    }
-
-    private fun Double.pow(n: Int): Double {
-        var result = 1.0
-        repeat(n) { result *= this }
-        return result
     }
 }

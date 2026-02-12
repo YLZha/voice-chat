@@ -1,6 +1,7 @@
 package com.voicechat.android.presentation.chat
 
 import android.Manifest
+import androidx.compose.foundation.Shape
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
@@ -368,9 +371,9 @@ private fun TextField(
     modifier: Modifier = Modifier,
     maxLines: Int = 1,
     enabled: Boolean = true,
-    shape: androidx.compose.foundation.Shape = MaterialTheme.shapes.small
+    shape: Shape = MaterialTheme.shapes.small
 ) {
-    androidx.compose.material3.OutlinedTextField(
+    OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         placeholder = placeholder,
@@ -378,7 +381,7 @@ private fun TextField(
         maxLines = maxLines,
         enabled = enabled,
         shape = shape,
-        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline
         )
