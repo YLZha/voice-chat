@@ -1,0 +1,17 @@
+INFO:     Started server process [22888]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:9000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:63850 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63871 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63872 - "POST /auth/google HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63874 - "POST /auth/google HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63876 - "POST /auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63877 - "GET /auth/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63878 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63884 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63885 - "POST /auth/google HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63887 - "POST /auth/google HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63889 - "POST /auth/refresh HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:63890 - "GET /auth/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:63891 - "GET /openapi.json HTTP/1.1" 200 OK

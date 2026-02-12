@@ -6,7 +6,10 @@ import io
 import logging
 import time
 import wave
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.services import WhisperService, ClaudeService, TTSService
 
 from app.models import (
     GoogleLoginRequest,
@@ -16,7 +19,8 @@ from app.models import (
 )
 from app.auth import token_manager, google_auth_manager
 from app.config import config
-from app.services import WhisperService, ClaudeService, TTSService
+# Lazy imports to avoid loading heavy ML models on startup
+# from app.services import WhisperService, ClaudeService, TTSService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -145,25 +149,27 @@ async def refresh_access_token(body: RefreshRequest):
 # ============================================================================
 
 # Lazy initialization for services (load on first request to avoid startup delays)
-_whisper_service: Optional[WhisperService] = None
-_claude_service: Optional[ClaudeService] = None
-_tts_service: Optional[TTSService] = None
+_whisper_service = None
+_claude_service = None
+_tts_service = None
 
 
-def get_whisper_service() -> WhisperService:
+def get_whisper_service():
     """Get or create Whisper service instance."""
     global _whisper_service
     if _whisper_service is None:
         logger.info("Initializing Whisper service...")
+        from app.services import WhisperService
         _whisper_service = WhisperService()
     return _whisper_service
 
 
-def get_claude_service() -> ClaudeService:
+def get_claude_service():
     """Get or create Claude service instance."""
     global _claude_service
     if _claude_service is None:
         logger.info("Initializing Claude service...")
+        from app.services import ClaudeService
         _claude_service = ClaudeService(
             api_key=config.claude_api_key,
             model=config.claude_model
@@ -171,11 +177,12 @@ def get_claude_service() -> ClaudeService:
     return _claude_service
 
 
-def get_tts_service() -> TTSService:
+def get_tts_service():
     """Get or create TTS service instance."""
     global _tts_service
     if _tts_service is None:
         logger.info("Initializing TTS service...")
+        from app.services import TTSService
         _tts_service = TTSService()
     return _tts_service
 

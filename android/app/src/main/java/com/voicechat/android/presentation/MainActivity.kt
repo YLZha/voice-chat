@@ -1,6 +1,7 @@
 package com.voicechat.android.presentation
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -110,16 +111,32 @@ class MainActivity : ComponentActivity() {
 
     private fun handleSignInResult(task: Task<GoogleSignInAccount>, viewModel: AuthViewModel) {
         try {
+            Log.d(TAG, "Handling Google Sign-In result...")
             val account = task.getResult(com.google.android.gms.common.api.ApiException::class.java)
-            account.idToken?.let { idToken ->
-                viewModel.signInWithGoogle(idToken)
+            
+            if (account.idToken != null) {
+                Log.d(TAG, "Google Sign-In successful, sending token to backend...")
+                viewModel.signInWithGoogle(account.idToken!!)
+            } else {
+                Log.e(TAG, "Google Sign-In returned null idToken")
             }
         } catch (e: com.google.android.gms.common.api.ApiException) {
             val statusCode = e.statusCode
+            Log.e(TAG, "Google Sign-In API Exception - Status: $statusCode, Message: ${e.message}")
+            
             // Don't show error for cancelled sign-in (status code 12500)
             if (statusCode != GoogleSignInStatusCodes.CANCELED) {
+                Log.e(TAG, "Sign-In error will be handled via authState")
                 // Error handling can be done through authState
+            } else {
+                Log.d(TAG, "Sign-In was cancelled by user")
             }
+        } catch (e: Exception) {
+            Log.e(TAG, "Unexpected exception during Google Sign-In", e)
         }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

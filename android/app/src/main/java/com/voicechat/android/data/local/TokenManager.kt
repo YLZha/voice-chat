@@ -2,6 +2,7 @@ package com.voicechat.android.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.voicechat.android.domain.model.AuthTokens
@@ -50,13 +51,20 @@ class TokenManager @Inject constructor(
     }
 
     fun saveTokens(tokens: AuthTokens) {
-        encryptedPrefs.edit().apply {
-            putString(KEY_ACCESS_TOKEN, tokens.accessToken)
-            putString(KEY_REFRESH_TOKEN, tokens.refreshToken)
-            putLong(KEY_EXPIRES_AT, tokens.expiresAt)
-            apply()
+        try {
+            Log.d(TAG, "Saving tokens to encrypted preferences...")
+            encryptedPrefs.edit().apply {
+                putString(KEY_ACCESS_TOKEN, tokens.accessToken)
+                putString(KEY_REFRESH_TOKEN, tokens.refreshToken)
+                putLong(KEY_EXPIRES_AT, tokens.expiresAt)
+                apply()
+            }
+            _tokens.value = tokens
+            Log.d(TAG, "Tokens saved successfully")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving tokens", e)
+            throw e
         }
-        _tokens.value = tokens
     }
 
     fun getAccessToken(): String? = _tokens.value?.accessToken
@@ -80,6 +88,7 @@ class TokenManager @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "TokenManager"
         private const val PREFS_FILE_NAME = "voice_chat_tokens"
         private const val KEY_ACCESS_TOKEN = "access_token"
         private const val KEY_REFRESH_TOKEN = "refresh_token"

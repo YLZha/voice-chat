@@ -1,5 +1,6 @@
 package com.voicechat.android.presentation.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.voicechat.android.domain.model.AuthState
@@ -23,15 +24,40 @@ class AuthViewModel @Inject constructor(
 
     fun signInWithGoogle(idToken: String) {
         viewModelScope.launch {
-            _isSigningIn.value = true
-            authRepository.signInWithGoogle(idToken)
-            _isSigningIn.value = false
+            try {
+                _isSigningIn.value = true
+                Log.d(TAG, "Starting Google Sign-In with token: ${idToken.substring(0, 20)}...")
+                
+                val result = authRepository.signInWithGoogle(idToken)
+                
+                if (result.isSuccess) {
+                    Log.d(TAG, "Google Sign-In succeeded")
+                } else {
+                    Log.e(TAG, "Google Sign-In failed: ${result.exceptionOrNull()?.message}")
+                }
+                
+                _isSigningIn.value = false
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception during Google Sign-In", e)
+                _isSigningIn.value = false
+                // Error is propagated via authState
+            }
         }
     }
 
     fun signOut() {
         viewModelScope.launch {
-            authRepository.signOut()
+            try {
+                Log.d(TAG, "Signing out")
+                authRepository.signOut()
+                Log.d(TAG, "Sign-out completed")
+            } catch (e: Exception) {
+                Log.e(TAG, "Exception during sign-out", e)
+            }
         }
+    }
+
+    companion object {
+        private const val TAG = "AuthViewModel"
     }
 }

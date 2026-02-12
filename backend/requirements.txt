@@ -8,13 +8,15 @@ httpx==0.28.1
 requests==2.32.3
 
 # Phase 2: AI Services
-openai-whisper==20231117
 anthropic==0.28.1
-TTS==1.4.2
 
-# ML/AI Dependencies
-torch>=2.0.0
-torchaudio>=2.0.0
-transformers>=4.30.0
+# ML/AI Dependencies for audio processing
 numpy>=1.24.0
+torch>=2.0.0
+transformers>=4.30.0
 soundfile>=0.12.0
+librosa>=0.10.0
+
+# Optional: Install separately if needed (build issues)
+# openai-whisper==20231117
+# TTS==1.4.2
