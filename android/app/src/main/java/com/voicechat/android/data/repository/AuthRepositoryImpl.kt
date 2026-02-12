@@ -99,9 +99,10 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             Log.d(TAG, "Refreshing token...")
             val refreshToken = tokenManager.getRefreshToken()
-                ?: return Result.failure(Exception("No refresh token available")).also {
-                    Log.e(TAG, "No refresh token found")
-                }
+            if (refreshToken == null) {
+                Log.e(TAG, "No refresh token found")
+                return Result.failure(Exception("No refresh token available"))
+            }
 
             val response = authApiService.refreshToken(RefreshTokenRequest(refreshToken))
             Log.d(TAG, "Token refresh response: ${response.code()}")
