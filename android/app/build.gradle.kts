@@ -22,7 +22,7 @@ android {
             useSupportLibrary = true
         }
         
-        buildConfigField("String", "WEB_CLIENT_ID", "\"your_web_client_id_here\"")
+        buildConfigField("String", "WEB_CLIENT_ID", "\"REDACTED_WEB_CLIENT_ID\"")
     }
 
     buildTypes {

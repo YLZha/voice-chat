@@ -67,26 +67,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    // Navigate based on auth state
-                    LaunchedEffect(authState) {
-                        when (authState) {
-                            is AuthState.Authenticated -> {
-                                navController.navigate(Screen.Chat.route) {
-                                    popUpTo(Screen.Auth.route) { inclusive = true }
-                                }
-                            }
-                            is AuthState.Unauthenticated -> {
-                                // Only navigate to auth if we're not already there
-                                if (navController.currentDestination?.route != Screen.Auth.route) {
-                                    navController.navigate(Screen.Auth.route) {
-                                        popUpTo(Screen.Chat.route) { inclusive = true }
-                                    }
-                                }
-                            }
-                            else -> {}
-                        }
-                    }
-
                     VoiceChatNavigation(
                         navController = navController,
                         startDestination = Screen.Auth.route

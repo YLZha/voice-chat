@@ -1,5 +1,5 @@
 auth:
-  google_client_id: "REDACTED_ANDROID_CLIENT_ID"
+  google_client_id: "REDACTED_WEB_CLIENT_ID"
   jwt_secret: "REDACTED_JWT_PLACEHOLDER"
   access_token_expire_hours: 1
   refresh_token_expire_days: 30

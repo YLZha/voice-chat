@@ -17,5 +17,5 @@
     <string name="reconnecting">Reconnecting...</string>
     
     <!-- Google Sign-In -->
-    <string name="web_client_id" translatable="false" tools:ignore="MissingTranslation">REDACTED_ANDROID_CLIENT_ID</string>
+    <string name="web_client_id" translatable="false" tools:ignore="MissingTranslation">REDACTED_WEB_CLIENT_ID</string>
 </resources>
