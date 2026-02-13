@@ -1,0 +1,34 @@
+# Copy this file to config.yaml and fill in your values:
+#   cp config.example.yaml config.yaml
+#
+# All values can be overridden by environment variables (takes precedence).
+# See the env var names in comments below.
+
+auth:
+  google_client_id: "YOUR_GOOGLE_WEB_CLIENT_ID"   # env: GOOGLE_CLIENT_ID
+  jwt_secret: "CHANGE_ME"                          # env: JWT_SECRET  (use: python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+  access_token_expire_hours: 1
+  refresh_token_expire_days: 30
+  allowlist:                                       # env: AUTH_ALLOWLIST (comma-separated)
+    - user@example.com
+
+tts:
+  provider: "elevenlabs"
+  api_key: "YOUR_ELEVENLABS_API_KEY"               # env: TTS_API_KEY
+  voice_id: "EXAVITQu4vr4xnSDxMaL"
+
+claude:
+  api_key: "YOUR_CLAUDE_API_KEY"                   # env: CLAUDE_API_KEY
+  model: "claude-opus-4-5"
+
+whisper:
+  model_name: "facebook/wav2vec2-base"
+
+tts_coqui:
+  model_name: "tts_models/en/ljspeech/glow-tts"
+  sample_rate: 22050
+
+server:
+  host: "0.0.0.0"
+  port: 9000
+  debug: false                                     # env: DEBUG

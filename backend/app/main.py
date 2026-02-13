@@ -4,6 +4,7 @@ import asyncio
 import base64
 import io
 import logging
+import os
 import time
 import wave
 from typing import Optional, TYPE_CHECKING
@@ -35,12 +36,17 @@ app = FastAPI(
 )
 
 # Enable CORS
+# When allow_credentials=True, allow_origins cannot be ["*"].
+# Use specific origins or disable credentials.
+_cors_origins = os.environ.get("CORS_ORIGINS", "").split(",")
+_cors_origins = [o.strip() for o in _cors_origins if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict this
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=_cors_origins or ["*"],
+    allow_credentials=bool(_cors_origins),  # Only with explicit origins
+    allow_methods=["GET", "POST"],
+    allow_headers=["authorization", "content-type"],
 )
 
 
