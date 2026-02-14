@@ -32,3 +32,5 @@ server:
   host: "0.0.0.0"
   port: 9000
   debug: false                                     # env: DEBUG
+  cors_origins:                                    # env: CORS_ORIGINS (comma-separated)
+    - "https://your-frontend-domain.com"

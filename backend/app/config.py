@@ -1,7 +1,12 @@
 import os
 import yaml
+from dotenv import load_dotenv
 from pathlib import Path
 from typing import List, Optional
+
+# Load .env file (does not override existing env vars)
+_env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(_env_path)
 
 
 class Config:
@@ -87,6 +92,14 @@ class Config:
     @property
     def claude_model(self) -> str:
         return self._get("claude", "model", default="claude-opus-4-5")
+
+    # CORS config
+    @property
+    def cors_origins(self) -> list[str]:
+        env_val = os.environ.get("CORS_ORIGINS")
+        if env_val:
+            return [o.strip() for o in env_val.split(",") if o.strip()]
+        return self._get("server", "cors_origins", default=[])
 
     # Server config
     @property

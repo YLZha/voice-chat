@@ -15,6 +15,9 @@ fi
 
 source venv/bin/activate
 
+# .env is loaded automatically by python-dotenv in config.py
+# To set up: cp .env.example .env && edit .env
+
 # Parse arguments
 PORT=${1:-9000}
 HOST=${2:-127.0.0.1}
