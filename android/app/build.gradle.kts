@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -22,7 +24,12 @@ android {
             useSupportLibrary = true
         }
         
-        val webClientId = project.findProperty("WEB_CLIENT_ID")?.toString()
+        val localPropsFile = rootProject.file("local.properties")
+        val localProps = Properties()
+        if (localPropsFile.exists()) {
+            localPropsFile.inputStream().use { localProps.load(it) }
+        }
+        val webClientId = localProps.getProperty("WEB_CLIENT_ID")
             ?: error("WEB_CLIENT_ID not set in local.properties. See README for setup instructions.")
         buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
     }
