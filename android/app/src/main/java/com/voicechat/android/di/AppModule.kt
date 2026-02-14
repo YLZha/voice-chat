@@ -25,6 +25,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -103,6 +104,10 @@ object AppModule {
     fun provideWsService(okHttpClient: OkHttpClient, gson: Gson): WsService {
         return WsService(okHttpClient, gson)
     }
+
+    @Provides
+    @Named("wsUrl")
+    fun provideWsUrl(): String = WS_BASE_URL
 }
 
 @Module

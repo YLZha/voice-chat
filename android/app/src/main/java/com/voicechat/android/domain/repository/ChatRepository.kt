@@ -8,10 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 interface ChatRepository {
     val connectionState: StateFlow<ConnectionState>
     val messages: StateFlow<List<ChatMessage>>
-    
+
     suspend fun connect()
     suspend fun disconnect()
     suspend fun sendMessage(text: String)
     suspend fun sendAudio(audioData: ByteArray)
+    suspend fun notifyEndOfAudio()
     suspend fun clearHistory()
 }

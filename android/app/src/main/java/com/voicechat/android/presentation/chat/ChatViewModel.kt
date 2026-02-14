@@ -59,7 +59,16 @@ class ChatViewModel @Inject constructor(
     private fun observeMessages() {
         viewModelScope.launch {
             chatRepository.messages.collect { messages ->
+                val previousSize = _uiState.value.messages.size
                 _uiState.update { it.copy(messages = messages) }
+
+                // Auto-play new assistant messages that have audio
+                if (messages.size > previousSize) {
+                    val newest = messages.last()
+                    if (!newest.isUser && newest.audioUrl != null) {
+                        audioPlayer.playAudio(newest.audioUrl)
+                    }
+                }
             }
         }
     }
@@ -144,13 +153,18 @@ class ChatViewModel @Inject constructor(
 
     fun stopRecording() {
         if (!_uiState.value.isRecording) return
-        
+
         viewModelScope.launch {
             audioChunkJob?.cancel()
             audioChunkJob = null
-            
+
             audioRecorder.stopRecording()
             _uiState.update { it.copy(isRecording = false) }
+
+            // Tell backend to process any remaining audio in its buffer
+            try {
+                chatRepository.notifyEndOfAudio()
+            } catch (_: Exception) { }
         }
     }
 

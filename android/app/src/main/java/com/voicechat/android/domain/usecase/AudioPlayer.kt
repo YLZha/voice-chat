@@ -26,29 +26,66 @@ class AudioPlayer @Inject constructor() {
     val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
     
     companion object {
-        const val SAMPLE_RATE = 16000
+        const val DEFAULT_SAMPLE_RATE = 16000
         const val CHANNEL_CONFIG = AudioFormat.CHANNEL_OUT_MONO
         const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
     }
 
-    private fun createAudioTrack(): AudioTrack {
+    private fun createAudioTrack(sampleRate: Int): AudioTrack {
         return AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                     .build()
             )
             .setAudioFormat(
                 AudioFormat.Builder()
-                    .setSampleRate(SAMPLE_RATE)
+                    .setSampleRate(sampleRate)
                     .setChannelMask(CHANNEL_CONFIG)
                     .setEncoding(AUDIO_FORMAT)
                     .build()
             )
-            .setBufferSizeInBytes(2 * SAMPLE_RATE) // 2 seconds buffer
+            .setBufferSizeInBytes(2 * sampleRate) // 2 seconds buffer
             .setTransferMode(AudioTrack.MODE_STREAM)
             .build()
+    }
+
+    /**
+     * Parse WAV header if present, returning (sampleRate, pcmData).
+     * Falls back to raw PCM at DEFAULT_SAMPLE_RATE if not a valid WAV.
+     */
+    private fun parseAudioData(data: ByteArray): Pair<Int, ByteArray> {
+        if (data.size > 44 &&
+            data[0] == 'R'.code.toByte() && data[1] == 'I'.code.toByte() &&
+            data[2] == 'F'.code.toByte() && data[3] == 'F'.code.toByte()
+        ) {
+            // Read sample rate from WAV header (bytes 24-27, little-endian)
+            val sampleRate = (data[24].toInt() and 0xFF) or
+                ((data[25].toInt() and 0xFF) shl 8) or
+                ((data[26].toInt() and 0xFF) shl 16) or
+                ((data[27].toInt() and 0xFF) shl 24)
+
+            // Find the "data" sub-chunk
+            var offset = 12 // skip RIFF header
+            while (offset < data.size - 8) {
+                val chunkId = String(data, offset, 4, Charsets.US_ASCII)
+                val chunkSize = (data[offset + 4].toInt() and 0xFF) or
+                    ((data[offset + 5].toInt() and 0xFF) shl 8) or
+                    ((data[offset + 6].toInt() and 0xFF) shl 16) or
+                    ((data[offset + 7].toInt() and 0xFF) shl 24)
+
+                if (chunkId == "data") {
+                    val start = offset + 8
+                    val end = minOf(start + chunkSize, data.size)
+                    return Pair(sampleRate, data.copyOfRange(start, end))
+                }
+                offset += 8 + chunkSize
+            }
+            // Fallback: assume data starts at byte 44
+            return Pair(sampleRate, data.copyOfRange(44, data.size))
+        }
+        return Pair(DEFAULT_SAMPLE_RATE, data)
     }
 
     suspend fun playAudio(base64Audio: String): Result<Unit> = withContext(Dispatchers.IO) {
@@ -57,8 +94,11 @@ class AudioPlayer @Inject constructor() {
                 stopPlayback()
             }
 
-            audioTrack = createAudioTrack()
-            
+            val rawData = Base64.decode(base64Audio, Base64.NO_WRAP)
+            val (sampleRate, pcmData) = parseAudioData(rawData)
+
+            audioTrack = createAudioTrack(sampleRate)
+
             if (audioTrack?.state != AudioTrack.STATE_INITIALIZED) {
                 _playbackState.value = PlaybackState.Error("Failed to initialize AudioTrack")
                 return@withContext Result.failure(Exception("AudioTrack initialization failed"))
@@ -68,15 +108,13 @@ class AudioPlayer @Inject constructor() {
             audioTrack?.play()
             isPlaying = true
 
-            val audioData = Base64.decode(base64Audio, Base64.NO_WRAP)
-            val sampleSize = 2 // 16-bit samples
-            val buffer = ByteArray(4096) // 4KB buffer
+            val buffer = ByteArray(4096)
             var offset = 0
 
-            while (isActive && isPlaying && offset < audioData.size) {
-                val toRead = minOf(4096, audioData.size - offset)
-                System.arraycopy(audioData, offset, buffer, 0, toRead)
-                
+            while (isActive && isPlaying && offset < pcmData.size) {
+                val toRead = minOf(4096, pcmData.size - offset)
+                System.arraycopy(pcmData, offset, buffer, 0, toRead)
+
                 val written = audioTrack?.write(buffer, 0, toRead) ?: -1
                 if (written > 0) {
                     offset += written
@@ -84,8 +122,7 @@ class AudioPlayer @Inject constructor() {
                     _playbackState.value = PlaybackState.Error("Playback error: $written")
                     break
                 }
-                
-                // Check if playback was paused/stopped during write
+
                 if (!isPlaying) break
             }
 
