@@ -1,5 +1,10 @@
-from fastapi import FastAPI, Header, HTTPException, WebSocket, status, WebSocketDisconnect
+from fastapi import FastAPI, Header, HTTPException, Request, WebSocket, status, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from starlette.middleware.base import BaseHTTPMiddleware
 import asyncio
 import base64
 import io
@@ -60,6 +65,34 @@ app.add_middleware(
     allow_headers=["authorization", "content-type"],
 )
 
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"detail": "Rate limit exceeded. Try again later."},
+    )
+
+
+# Security headers middleware
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["Permissions-Policy"] = "microphone=(self)"
+        if not config.debug:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 
 # Health check endpoint
 @app.get("/health")
@@ -73,7 +106,8 @@ async def health_check():
 # ============================================================================
 
 @app.post("/auth/google", response_model=AuthResponse)
-async def google_login(body: GoogleLoginRequest):
+@limiter.limit("10/minute")
+async def google_login(request: Request, body: GoogleLoginRequest):
     """
     Google OAuth login endpoint.
     
@@ -128,7 +162,8 @@ async def google_login(body: GoogleLoginRequest):
 
 
 @app.post("/auth/refresh", response_model=AuthResponse)
-async def refresh_access_token(body: RefreshRequest):
+@limiter.limit("20/minute")
+async def refresh_access_token(request: Request, body: RefreshRequest):
     """
     Refresh token endpoint.
     
@@ -166,7 +201,8 @@ async def refresh_access_token(body: RefreshRequest):
 
 
 @app.get("/auth/me", response_model=UserResponse)
-async def get_current_user(authorization: str = Header(...)):
+@limiter.limit("30/minute")
+async def get_current_user(request: Request, authorization: str = Header(...)):
     """
     Get current user info from JWT token.
 
