@@ -57,6 +57,13 @@ class Config:
         return secret
 
     @property
+    def jwt_secret_previous(self) -> Optional[str]:
+        """Previous JWT secret for graceful rotation. Tokens signed with this
+        secret are still accepted during verification, but new tokens are
+        always signed with jwt_secret."""
+        return self._get("auth", "jwt_secret_previous", env_var="JWT_SECRET_PREVIOUS")
+
+    @property
     def access_token_expire_hours(self) -> int:
         return int(self._get("auth", "access_token_expire_hours", default=1))
 

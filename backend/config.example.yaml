@@ -7,6 +7,7 @@
 auth:
   google_client_id: "YOUR_GOOGLE_WEB_CLIENT_ID"   # env: GOOGLE_CLIENT_ID
   jwt_secret: "CHANGE_ME"                          # env: JWT_SECRET  (use: python3 -c "import secrets; print(secrets.token_urlsafe(32))")
+  # jwt_secret_previous: ""                        # env: JWT_SECRET_PREVIOUS  (set during rotation — see scripts/rotate_jwt_secret.py)
   access_token_expire_hours: 1
   refresh_token_expire_days: 30
   allowlist:                                       # env: AUTH_ALLOWLIST (comma-separated)

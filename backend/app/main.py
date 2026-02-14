@@ -208,40 +208,21 @@ async def get_current_user(request: Request, authorization: str = Header(...)):
 
     Requires Authorization header: "Bearer <access_token>"
     """
-    try:
-        # Extract token from "Bearer <token>"
-        if not authorization.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authorization header"
-            )
-        token = authorization[7:]
-
-        # Verify and decode JWT
-        import jwt as pyjwt
-        claims = pyjwt.decode(token, config.jwt_secret, algorithms=["HS256"])
-        if claims.get("type") != "access":
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token type"
-            )
-
-        email = claims.get("sub", "")
-        return UserResponse(
-            id=email,
-            email=email,
-            name=claims.get("name", ""),
-            picture=claims.get("picture")
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error in get_current_user: {str(e)}")
+    if not authorization.startswith("Bearer "):
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authorization header"
         )
+    token = authorization[7:]
+
+    claims = token_manager.verify_access_token_full(token)
+    email = claims.get("sub", "")
+    return UserResponse(
+        id=email,
+        email=email,
+        name=claims.get("name", ""),
+        picture=claims.get("picture")
+    )
 
 
 # ============================================================================
