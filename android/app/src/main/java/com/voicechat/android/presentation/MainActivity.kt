@@ -21,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.tasks.Task
+import com.voicechat.android.BuildConfig
 import com.voicechat.android.R
 import com.voicechat.android.domain.model.AuthState
 import com.voicechat.android.presentation.auth.AuthViewModel
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
         val signInIntent = GoogleSignIn.getClient(
             this,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.web_client_id))
+                .requestIdToken(BuildConfig.WEB_CLIENT_ID)
                 .requestEmail()
                 .requestProfile()
                 .build()

@@ -38,6 +38,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInStatusCodes
 import com.google.android.gms.common.api.Scope
 import com.google.android.gms.tasks.Task
+import com.voicechat.android.BuildConfig
 import com.voicechat.android.R
 import com.voicechat.android.domain.model.AuthState
 
@@ -150,7 +151,7 @@ fun AuthScreen(
                         com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(
                             com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN
                         )
-                            .requestIdToken(context.getString(R.string.web_client_id))
+                            .requestIdToken(BuildConfig.WEB_CLIENT_ID)
                             .requestEmail()
                             .requestProfile()
                             .build()

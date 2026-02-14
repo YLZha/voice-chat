@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name">Voice Chat</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_out">Sign Out</string>
@@ -15,7 +15,4 @@
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="reconnecting">Reconnecting...</string>
-    
-    <!-- Google Sign-In -->
-    <string name="web_client_id" translatable="false" tools:ignore="MissingTranslation">REDACTED_WEB_CLIENT_ID</string>
 </resources>

@@ -22,7 +22,9 @@ android {
             useSupportLibrary = true
         }
         
-        buildConfigField("String", "WEB_CLIENT_ID", "\"REDACTED_WEB_CLIENT_ID\"")
+        val webClientId = project.findProperty("WEB_CLIENT_ID")?.toString()
+            ?: error("WEB_CLIENT_ID not set in local.properties. See README for setup instructions.")
+        buildConfigField("String", "WEB_CLIENT_ID", "\"$webClientId\"")
     }
 
     buildTypes {

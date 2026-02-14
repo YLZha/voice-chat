@@ -67,9 +67,9 @@ chmod +x setup.gradle.sh
    - Application type: Web application
    - Add Android app package: `com.voicechat.android`
    - Get the WEB_CLIENT_ID
-5. Update `app/src/main/res/values/strings.xml`:
-   ```xml
-   <string name="web_client_id">YOUR_WEB_CLIENT_ID_HERE</string>
+5. Add to `local.properties`:
+   ```
+   WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID_HERE
    ```
 
 ### 4. Configure Backend
